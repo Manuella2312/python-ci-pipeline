@@ -1,21 +1,23 @@
-pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Manuella2312/python-ci-pipeline.git'
-            }
-        }
-        stage('Setup') {
-            steps {
-                sh 'python3 -m venv venv'
-                sh '. venv/bin/activate && pip install -r requirements.txt'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh '. venv/bin/activate && pytest tests/'
-            }
-        }
+stage("Install dependencies") {
+    steps {
+        sh '''
+        docker run --rm \
+           -v $(pwd):/app \
+           -w /app \
+           python:3.11 \
+           pip install -r requirements.txt
+        '''
+    }
+}
+
+stage("Run tests") {
+    steps {
+        sh '''
+        docker run --rm \
+           -v $(pwd):/app \
+           -w /app \
+           python:3.11 \
+           python test_app.py
+        '''
     }
 }
